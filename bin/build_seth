@@ -32,7 +32,7 @@ mkdir -p $seth_dir/src/sawtooth_sdk
 mkdir -p $seth_dir/src/protos/core
 mkdir -p $top_dir/families/c
 mkdir -p $top_dir/families/rust/
-export GOPATH=/go:$seth_dir
+export GOPATH=${GOPATH}:$seth_dir
 
 info "Cloning SDKs"
 cd /tmp
