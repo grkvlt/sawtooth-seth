@@ -24,7 +24,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
-	sdk "sawtooth_sdk/client"
+	sdk "sawtooth_sdk/signing"
 	"strings"
 	"syscall"
 )
@@ -160,7 +160,7 @@ func LoadKey(alias string) ([]byte, error) {
 
 	var priv []byte = nil
 	if keyType == "wif" {
-		priv, err = sdk.WifToPriv(keystr)
+		priv, err = sdk.wifToPriv(keystr)
 	} else if keyType == "pem" {
 		var password = ""
 		if strings.Contains(keystr, "ENCRYPTED") {
@@ -170,7 +170,7 @@ func LoadKey(alias string) ([]byte, error) {
 				return nil, err
 			}
 		}
-		priv, err = sdk.PemToPriv(keystr, password)
+		priv, err = sdk.pemToPriv(keystr, password)
 	}
 	if err != nil {
 		return nil, err

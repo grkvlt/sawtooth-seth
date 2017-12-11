@@ -47,10 +47,11 @@ cd $top_dir
 # Go
 rsync -aH /tmp/sawtooth-core/sdk/go/src/sawtooth_sdk $seth_dir/src/
 rsync -aH /tmp/sawtooth-core/sdk/c/loader.c $top_dir/families/c/loader.c
+rsync -aH /tmp/sawtooth-core/sdk/c/c11_support.c $top_dir/families/c/c11_support.c
+rsync -aH /tmp/sawtooth-core/sdk/c/c11_support.h $top_dir/families/c/c11_support.h
 rsync -aH /tmp/sawtooth-core/protos/* $seth_dir/src/protos/core/
 # Rust
 rsync -aH /tmp/sawtooth-core/sdk/rust/ $top_dir/families/rust/
-
 
 info "Running protogen seth"
 $top_dir/bin/protogen seth
