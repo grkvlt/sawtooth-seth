@@ -18,12 +18,11 @@
 #   run build_seth.
 #
 # Build:
-#   $ cd sawtooth-core/docker
-#   $ docker build . -f sawtooth-dev-seth -t sawtooth-dev-seth
+#   $ docker build . -t sawtooth-dev-seth
 #
 # Run:
 #   $ cd sawtooth-core
-#   $ docker run -v $(pwd):/project/sawtooth-core sawtooth-dev-seth
+#   $ docker run -v $(pwd):/project/sawtooth-seth sawtooth-dev-seth
 
 FROM ubuntu:xenial
 
