@@ -138,6 +138,8 @@ pub fn get_filter_changes<T>(params: Params, mut client: ValidatorClient<T>)
                             if let Ok(header) = header {
                                 if header.family_name == "seth" {
                                     true
+                                } else if header.family_name == "block_info" {
+                                    true
                                 } else {
                                     false
                                 }
@@ -159,7 +161,7 @@ pub fn get_filter_changes<T>(params: Params, mut client: ValidatorClient<T>)
     };
 
     // NOTE: Updating is delayed until there are no more error sources that could cause an early
-    // return after upadting the filter
+    // return after updating the filter
     if let Some(&(block_num, _)) = blocks.last() {
         client.filters.update_latest_block(&filter_id, block_num);
     }
