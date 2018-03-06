@@ -62,6 +62,27 @@ func (s *SawtoothAppState) GetAccount(addr Word256) *Account {
 	return toVmAccount(entry.GetAccount())
 }
 
+// GetClientAccount retrieves an existing account with the given address. Returns nil
+// if the account doesn't exist.
+func (s *SawtoothAppState) GetClientAccount(addr Word256) *Account {
+	addrBytes := addr.Bytes()[Word256Length-20:]
+	vmAddress, err := NewEvmAddrFromBytes(addrBytes)
+	if err != nil {
+		panic(err.Error())
+	}
+	logger.Debugf("GetClientAccount(%v)", vmAddress)
+
+	entry, err := s.mgr.GetClientEntry(vmAddress)
+	if err != nil {
+		panic(err.Error())
+	}
+	if entry == nil {
+		return nil
+	}
+
+	return toVmAccount(entry.GetAccount())
+}
+
 // UpdateAccount updates the account in state. Creates the account if it doesn't
 // exist yet.
 func (s *SawtoothAppState) UpdateAccount(acct *Account) {
@@ -220,6 +241,7 @@ func toStateAccount(acct *Account) *EvmStateAccount {
 	if acct == nil {
 		return nil
 	}
+	logger.Debugf("toStateAccount(%v) %v", acct, acct.Address.Bytes()[Word256Length-20:])
 	return &EvmStateAccount{
 		Address:     acct.Address.Bytes()[Word256Length-20:],
 		Balance:     acct.Balance,
@@ -233,6 +255,7 @@ func toVmAccount(sa *EvmStateAccount) *Account {
 	if sa == nil {
 		return nil
 	}
+	logger.Debugf("toVmAccount(%v) %v", sa, LeftPadWord256(sa.Address))
 	return &Account{
 		Address:     LeftPadWord256(sa.Address),
 		Balance:     sa.Balance,
