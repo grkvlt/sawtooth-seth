@@ -21,7 +21,7 @@ import (
 	. "burrow/evm"
 	"encoding/hex"
 	"fmt"
-	"github.com/hyperledger/sawtooth-sdk-go/processor"
+	"github.com/grkvlt/sawtooth-sdk-go/processor"
 )
 
 type SawtoothEventFireable struct {

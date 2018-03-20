@@ -42,6 +42,8 @@ RUN go get -u \
     github.com/jessevdk/go-flags \
     github.com/pebbe/zmq4 \
     github.com/satori/go.uuid \
+    github.com/btcsuite/btcd/btcec \
+    github.com/grkvlt/sawtooth-sdk-go/... \
     golang.org/x/crypto/ripemd160 \
     gopkg.in/fatih/set.v0
 

@@ -37,6 +37,34 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F10
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
+RUN go get -u \
+    github.com/golang/protobuf/proto \
+    github.com/golang/protobuf/protoc-gen-go \
+    github.com/btcsuite/btcd/btcec \
+    github.com/grkvlt/sawtooth-sdk-go/... \
+    github.com/jessevdk/go-flags \
+    github.com/pelletier/go-toml \
+    golang.org/x/crypto/ssh/terminal
+
+RUN seth-protogen go
+
+ENV GOPATH=$GOPATH:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
+RUN go build -o /project/sawtooth-seth/cli/bin/seth
+
+# Build RPC
+WORKDIR /
+
+RUN echo "deb http://repo.sawtooth.me/ubuntu/ci xenial universe" >> /etc/apt/sources.list \
+ && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8AA7AF1F1091A5FD \
+ && apt-get update
+
+RUN apt-get install -y -q --allow-downgrades \
+    curl \
+    gcc \
+    unzip \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
 RUN curl -OLsS https://github.com/google/protobuf/releases/download/v3.5.1/protoc-3.5.1-linux-x86_64.zip \
  && unzip protoc-3.5.1-linux-x86_64.zip -d protoc3 \
  && rm protoc-3.5.1-linux-x86_64.zip
