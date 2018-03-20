@@ -50,6 +50,8 @@ RUN go get -u \
     github.com/golang/mock/mockgen \
     github.com/golang/protobuf/proto \
     github.com/golang/protobuf/protoc-gen-go \
+    github.com/btcsuite/btcd/btcec \
+    github.com/grkvlt/sawtooth-sdk-go/... \
     github.com/jessevdk/go-flags \
     github.com/pebbe/zmq4 \
     github.com/pelletier/go-toml \
