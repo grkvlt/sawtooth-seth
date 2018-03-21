@@ -13,16 +13,15 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
-FROM ubuntu:xenial
+FROM ubuntu:xenial AS tp
 
 COPY . /project/sawtooth-seth
-ENV GOPATH=/project/sawtooth-seth/processor
-ENV PATH=$PATH:/project/sawtooth-seth/processor/bin:/project/sawtooth-seth/bin:/usr/lib/go-1.9/bin
-WORKDIR $GOPATH/src/seth_tp
 
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F1091A5FD \
- && echo 'deb http://repo.sawtooth.me/ubuntu/1.0/stable xenial universe' >> /etc/apt/sources.list \
- && apt-get update \
+ENV GOPATH=/project/sawtooth-seth/processor
+ENV PATH=${PATH}:/project/sawtooth-seth/processor/bin:/project/sawtooth-seth/bin:/usr/lib/go-1.9/bin
+WORKDIR ${GOPATH}/src/seth_tp
+
+RUN apt-get update \
  && apt-get install -y -q \
     git \
     golang-1.9-go \
@@ -30,7 +29,8 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F10
     libzmq3-dev \
     openssl \
     python3 \
-    python3-grpcio-tools=1.1.3-1 \
+    python3-pip \
+ && pip3 install grpcio-tools \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -45,5 +45,18 @@ RUN go get -u \
 
 RUN seth-protogen go
 
-ENV GOPATH=$GOPATH:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
+ENV GOPATH=${GOPATH}:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
 RUN go build -o /project/sawtooth-seth/processor/bin/seth-tp
+
+FROM ubuntu:xenial
+
+RUN apt-get update \
+ && apt-get install -y -q \
+    libssl-dev \
+    libzmq3-dev \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /
+
+COPY --from=tp /project/sawtooth-seth/processor/bin/seth-tp /bin
