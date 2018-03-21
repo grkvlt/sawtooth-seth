@@ -363,16 +363,13 @@ pub fn call<T>(params: Params, mut client: ValidatorClient<T>) -> Result<Value, 
             return Err(Error::invalid_params("Takes [call: OBJECT, blockNum: QUANTITY|TAG]"));
         },
     };
-    if call.contains_key("from") {
-        return Err(Error::invalid_params("Param `from` not allowed for eth_call"));
-    }
 
     // Required arguments
     let to = transform::get_bytes_from_map(&call, "to").and_then(|f| f.ok_or_else(||
         Error::invalid_params("`to` not set")))?;
 
     // Optional Arguments
-    let _from = transform::bytes_to_hex_str(&vec![0; 0]);
+    let from = transform::get_string_from_map(&call, "from").map(|g| g.unwrap_or(transform::bytes_to_hex_str(&vec![0; 0])))?;
     let gas = transform::get_u64_from_map(&call, "gas").map(|g| g.unwrap_or(90000))?;
     let gas_price = transform::get_u64_from_map(&call, "gasPrice").map(|g| g.unwrap_or(10000000000000))?;
     let value = transform::get_u64_from_map(&call, "value").map(|g| g.unwrap_or(0))?;
@@ -391,7 +388,7 @@ pub fn call<T>(params: Params, mut client: ValidatorClient<T>) -> Result<Value, 
         SethTransaction::MessageCall(txn, false)
     };
 
-    let result = client.call_transaction(txn).map_err(|error| {
+    let result = client.call_transaction(&from, txn).map_err(|error| {
         error!("{:?}", error);
         Error::internal_error()
     })?;
