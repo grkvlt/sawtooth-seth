@@ -13,14 +13,14 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
-FROM ubuntu:xenial
+FROM ubuntu:xenial AS cli
 
 ENV GOPATH=/project/sawtooth-seth/cli
 ENV PATH=$PATH:/project/sawtooth-seth/cli/bin:/project/sawtooth-seth/bin:/usr/lib/go-1.9/bin
 
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F1091A5FD \
- && echo 'deb http://repo.sawtooth.me/ubuntu/1.0/stable xenial universe' >> /etc/apt/sources.list \
- && apt-get update \
+COPY . /project/sawtooth-seth
+
+RUN apt-get update \
  && apt-get install -y -q \
     curl \
     git \
@@ -29,18 +29,8 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F10
     libzmq3-dev \
     openssl \
     python3 \
-    python3-grpcio-tools=1.1.3-1 \
-    python3-sawtooth-cli \
-    software-properties-common \
- && add-apt-repository ppa:ethereum/ethereum \
- && apt-get update \
- && apt-get install -y -q \
-    solc \
- && curl -s -S -o /tmp/setup-node.sh https://deb.nodesource.com/setup_6.x \
- && chmod 755 /tmp/setup-node.sh \
- && /tmp/setup-node.sh \
- && apt-get install nodejs -y -q \
- && rm /tmp/setup-node.sh \
+    python3-pip \
+ && pip3 install grpcio-tools \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -62,14 +52,16 @@ RUN go get github.com/hyperledger/sawtooth-sdk-go \
  && cd $GOPATH/src/github.com/hyperledger/sawtooth-sdk-go \
  && go generate
 
+RUN seth-protogen go
+
+WORKDIR ${GOPATH}/src/seth_cli/cli
+ENV GOPATH=${GOPATH}:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
+RUN go build -o /project/sawtooth-seth/cli/bin/seth
+
+FROM ubuntu:xenial
+
 RUN npm install \
     ethereumjs-abi \
     web3
 
-COPY . /project/sawtooth-seth
-
-RUN seth-protogen go
-
-WORKDIR $GOPATH/src/seth_cli/cli
-ENV GOPATH=$GOPATH:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
-RUN go build -o /project/sawtooth-seth/cli/bin/seth
+COPY --from=cli /project/sawtooth-seth/cli/bin/seth /bin/seth
