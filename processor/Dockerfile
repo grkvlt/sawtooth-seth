@@ -13,12 +13,13 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
-FROM ubuntu:xenial
+FROM ubuntu:xenial AS tp
 
 COPY . /project/sawtooth-seth
+
 ENV GOPATH=/project/sawtooth-seth/processor
-ENV PATH=$PATH:/project/sawtooth-seth/processor/bin:/project/sawtooth-seth/bin:/usr/lib/go-1.9/bin
-WORKDIR $GOPATH/src/seth_tp
+ENV PATH=${PATH}:/project/sawtooth-seth/processor/bin:/project/sawtooth-seth/bin:/usr/lib/go-1.9/bin
+WORKDIR ${GOPATH}/src/seth_tp
 
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F1091A5FD \
  && echo 'deb http://repo.sawtooth.me/ubuntu/1.0/stable xenial universe' >> /etc/apt/sources.list \
@@ -45,5 +46,11 @@ RUN go get -u \
 
 RUN seth-protogen go
 
-ENV GOPATH=$GOPATH:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
+ENV GOPATH=${GOPATH}:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
 RUN go build -o /project/sawtooth-seth/processor/bin/seth-tp
+
+FROM ubuntu:xenial
+
+WORKDIR /
+
+COPY --from=tp /project/sawtooth-seth/processor/bin/seth-tp /bin

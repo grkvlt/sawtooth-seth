@@ -13,32 +13,24 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
-FROM ubuntu:xenial
+# Build cli
+FROM ubuntu:xenial AS cli
 
 COPY . /project/sawtooth-seth
 
-# Build client
-ENV GOPATH=/project/sawtooth-seth/cli
-ENV PATH=$PATH:/project/sawtooth-seth/cli/bin:/project/sawtooth-seth/bin:/usr/lib/go-1.9/bin
-WORKDIR $GOPATH/src/seth_cli/cli
+ENV GOPATH=/project/sawtooth-seth/cli \
+    PATH=${PATH}:/project/sawtooth-seth/cli/bin:/project/sawtooth-seth/bin:/usr/lib/go-1.9/bin
 
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 8AA7AF1F1091A5FD \
- && echo 'deb http://repo.sawtooth.me/ubuntu/1.0/stable xenial universe' >> /etc/apt/sources.list \
- && apt-get update \
+RUN apt-get update \
  && apt-get install -y -q \
-    curl \
     git \
     golang-1.9-go \
     libssl-dev \
     libzmq3-dev \
     openssl \
     python3 \
-    python3-grpcio-tools=1.1.3-1 \
- && curl -s -S -o /tmp/setup-node.sh https://deb.nodesource.com/setup_6.x \
- && chmod 755 /tmp/setup-node.sh \
- && /tmp/setup-node.sh \
- && apt-get install nodejs -y -q \
- && rm /tmp/setup-node.sh \
+    python3-pip \
+ && pip3 install grpcio-tools \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -53,20 +45,29 @@ RUN go get -u \
 
 RUN seth-protogen go
 
-ENV GOPATH=$GOPATH:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
+WORKDIR ${GOPATH}/src/seth_cli/cli
+ENV GOPATH=${GOPATH}:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
 RUN go build -o /project/sawtooth-seth/cli/bin/seth
 
 # Build RPC
-WORKDIR /
+FROM ubuntu:xenial AS rpc
 
-RUN echo "deb http://repo.sawtooth.me/ubuntu/ci xenial universe" >> /etc/apt/sources.list \
- && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8AA7AF1F1091A5FD \
- && apt-get update
+COPY . /project/sawtooth-seth
 
-RUN apt-get install -y -q --allow-downgrades \
+ENV PATH=${PATH}:/project/sawtooth-seth/bin
+
+RUN apt-get update \
+ && apt-get install -y -q --allow-downgrades \
+    pkg-config \
     curl \
     gcc \
     unzip \
+    openssl \
+    libssl-dev \
+    libzmq3-dev \
+    python3 \
+    python3-pip \
+ && pip3 install grpcio-tools \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -78,12 +79,20 @@ RUN curl https://sh.rustup.rs -sSf > /usr/bin/rustup-init \
  && chmod +x /usr/bin/rustup-init \
  && rustup-init -y
 
-ENV PATH=$PATH:/root/.cargo/bin:/protoc3/bin:/project/sawtooth-seth/rpc/bin \
+ENV PATH=${PATH}:/root/.cargo/bin:/protoc3/bin:/project/sawtooth-seth/rpc/bin \
     CARGO_INCREMENTAL=0
 
 RUN cargo install protobuf
 RUN seth-protogen rust
 
 WORKDIR /project/sawtooth-seth/rpc
-RUN mkdir /project/sawtooth-seth/rpc/bin
-RUN cargo build && cp ./target/debug/rpc /project/sawtooth-seth/rpc/bin/seth-rpc
+RUN mkdir /project/sawtooth-seth/rpc/bin \
+ && cargo build \
+ && cp ./target/debug/rpc /project/sawtooth-seth/rpc/bin/seth-rpc
+
+FROM ubuntu:xenial
+
+WORKDIR /
+
+COPY --from=cli /project/sawtooth-seth/cli/bin/seth /bin
+COPY --from=rpc /project/sawtooth-seth/rpc/bin/seth-rpc /bin
