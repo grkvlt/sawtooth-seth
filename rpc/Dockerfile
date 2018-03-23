@@ -92,6 +92,13 @@ RUN mkdir /project/sawtooth-seth/rpc/bin \
 
 FROM ubuntu:xenial
 
+RUN apt-get update \
+ && apt-get install -y -q \
+    libssl-dev \
+    libzmq3-dev \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /
 
 COPY --from=cli /project/sawtooth-seth/cli/bin/seth /bin

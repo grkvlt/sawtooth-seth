@@ -56,6 +56,8 @@ RUN apt-get update \
     software-properties-common \
     curl \
     git \
+    libssl-dev \
+    libzmq3-dev \
     build-essential \
  && add-apt-repository ppa:ethereum/ethereum \
  && apt-get update \
