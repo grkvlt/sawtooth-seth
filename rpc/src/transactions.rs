@@ -233,7 +233,15 @@ impl SethReceipt {
             .map(SethLog::from_event_pb)
             .collect::<Result<Vec<SethLog>, Error>>()?;
 
-        let contract_address = transform::bytes_to_hex_str(&seth_receipt_pb.get_contract_address()[12..32]);
+        debug!("XXX contract address [{:?}] {:?}", seth_receipt_pb.get_contract_address().len(), seth_receipt_pb.get_contract_address());
+
+        let contract_address = match seth_receipt_pb.get_contract_address().len() {
+            20 => transform::bytes_to_hex_str(&seth_receipt_pb.get_contract_address()),
+            32 => transform::bytes_to_hex_str(&seth_receipt_pb.get_contract_address()[12..32]),
+            0  => "".to_lowercase(),
+            _  => return Err(Error::ParseError(format!("Invalid contract address in Seth receipt: {:?}",
+                      transform::bytes_to_hex_str(&seth_receipt_pb.get_contract_address())))),
+        };
         let gas_used = seth_receipt_pb.get_gas_used();
         let return_value = transform::bytes_to_hex_str(seth_receipt_pb.get_return_value());
 
