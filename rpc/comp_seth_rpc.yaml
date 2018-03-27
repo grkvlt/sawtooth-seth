@@ -27,10 +27,12 @@ services:
       - 4004
     environment:
       RUST_BACKTRACE: 1
+    volumes:
+      - "..:/project/sawtooth-seth"
     command: "bash -c \"
       mkdir -p ~/.sawtooth/ &&
       cp tests/data/test.pem ~/.sawtooth/test.pem &&
-      cargo run --
+      seth-rpc
         --connect tcp://comp-seth-rpc:4004
         --bind 0.0.0.0:3030
         -v
