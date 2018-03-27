@@ -86,7 +86,8 @@ class SethRpcTest(unittest.TestCase):
         cls.contract_init_txn_id = "de0a7299e732f04cdf18f098f44d70574512a5f4ef037105b028223195c781c424a48cadaf1a7de26f41b085d57cf40e15f0ebe24cca2bc36114abd679a95d4a"
         cls.contract_call_s = "0" * 30 * 2
         cls.contract_call_b = bytes([0x0] * 30)
-        cls.contract_call_txn_id = "057be5cc3860362022178b0d05012c7a8f1073c75d7f1f695d8091e8a18112b07fdcd3403dfc3728dabaf04ea0000e3d7a212abf3b60dbff44155bf8ed237e43"
+        # "057be5cc3860362022178b0d05012c7a8f1073c75d7f1f695d8091e8a18112b07fdcd3403dfc3728dabaf04ea0000e3d7a212abf3b60dbff44155bf8ed237e43"
+        cls.contract_call_txn_id = "56c2aa464b09e6c2fffb362128e9bdca6917f8a92655d67d19cd621868c02145314652eddf69e0e8f612ba3b108db6e86d306b361bce51ca960c0a27e4d35cc6"
         cls.balance = 123
         cls.nonce = 456
         cls.code_b = bytes([0xab, 0xcd, 0xef])
