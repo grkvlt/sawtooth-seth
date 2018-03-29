@@ -359,7 +359,7 @@ impl<S: MessageSender> ValidatorClient<S> {
         Ok((batch, txn_signature))
     }
 
-    pub fn call_transaction(&mut self, txn: SethTransaction) -> Result<Vec<u8>, Error> {
+    pub fn call_transaction(&mut self, from: &str, txn: SethTransaction) -> Result<Vec<u8>, Error> {
         let payload = protobuf::Message::write_to_bytes(&txn.to_pb()).map_err(|error|
             Error::ParseError(String::from(
                 format!("Error serializing payload: {:?}", error))))?;
@@ -377,7 +377,17 @@ impl<S: MessageSender> ValidatorClient<S> {
         let hash = sha.result_str();
         txn_header.set_payload_sha512(hash);
 
-        let account = self.loaded_accounts()[0].clone();
+        let account = match from {
+            "0x0" => self.loaded_accounts()[0].clone(),
+            _ => {
+                self.loaded_accounts().iter()
+                    .find(|account| account.address() == from)
+                    .ok_or_else(|| {
+                        error!("Account with address `{}` not found.", from);
+                        Error::NoResource})?
+            }.clone(),
+        };
+
         txn_header.set_signer_public_key(String::from(account.public_key()));
         let txn_header_bytes = protobuf::Message::write_to_bytes(&txn_header).map_err(|error|
             Error::ParseError(String::from(
