@@ -45,7 +45,7 @@ pub fn peer_count<T>(_params: Params, mut client: ValidatorClient<T>) -> Result<
     info!("net_peerCount");
     let n = match client.get_peers() {
         Err(_) => 0,
-        Ok(n) => n,
+        Ok(n) => n + 1,
     };
 
     Ok(Value::String(format!("{:#x}", n)))
