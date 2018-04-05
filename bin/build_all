@@ -92,17 +92,33 @@ docker_build() {
 
     if [ ! -z $ISOLATION_ID ]
     then
-        tag=$tag:$ISOLATION_ID
+        version=":${ISOLATION_ID}"
     fi
 
-    info "Building $tag from $image"
+    info "Building ${tag} from ${image}"
 
     # Build the image and pass in any proxy information if set
-    docker build -f $image -t $tag $context \
+    docker build -f ${image} -t ${tag}${version} ${context} \
         --build-arg https_proxy=$https_proxy \
         --build-arg http_proxy=$http_proxy \
         --build-arg HTTPS_PROXY=$HTTPS_PROXY \
         --build-arg HTTP_PROXY=$HTTP_PROXY
+
+    info "Packaging ${tag} from ${image}"
+
+    # Build the packages and pass in any proxy information if set
+    docker build -f ${image}-installed -t ${tag}-installed${version} ${context} \
+        --build-arg https_proxy=$https_proxy \
+        --build-arg http_proxy=$http_proxy \
+        --build-arg HTTPS_PROXY=$HTTPS_PROXY \
+        --build-arg HTTP_PROXY=$HTTP_PROXY
+
+    info "Copying ${tag} artifacts"
+
+    mkdir -p $top_dir/build/debs
+
+    # Copy the built packages
+    docker run -v $top_dir/build:/build ${tag}-installed${version} bash -c "cp /install/*.deb /build/debs"
 }
 
 main
