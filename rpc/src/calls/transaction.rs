@@ -313,7 +313,7 @@ pub fn gas_price<T>(_params: Params, mut _client: ValidatorClient<T>) -> Result<
 pub fn estimate_gas<T>(_params: Params, mut _client: ValidatorClient<T>) -> Result<Value, Error> where T: MessageSender {
     info!("eth_estimateGas");
     // Implementing this requires running the EVM, which is not possible within the RPC.
-    Err(error::not_implemented())
+    Ok(Value::String(format!("{:#x}", 0)))
 }
 
 pub fn sign<T>(params: Params, client: ValidatorClient<T>) -> Result<Value, Error> where T: MessageSender {
@@ -389,11 +389,10 @@ pub fn call<T>(params: Params, mut client: ValidatorClient<T>) -> Result<Value, 
     };
 
     let result = client.call_transaction(&from, txn).map_err(|error| {
-        error!("{:?}", error);
+        error!("Error calling EVM: {}", error);
         Error::internal_error()
     })?;
 
-    debug!("ZZZ message call {:?} = {:?}", to.clone(), result);
     Ok(transform::hex_prefix(&transform::bytes_to_hex_str(&result)))
 }
 
