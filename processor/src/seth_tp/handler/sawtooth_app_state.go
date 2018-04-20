@@ -53,7 +53,7 @@ func (s *SawtoothAppState) GetAccount(addr Word256) *Account {
 
 	entry, err := s.mgr.GetEntry(vmAddress)
 	if err != nil {
-		panic(err.Error())
+        logger.Warnf("Error getting account %v: %v", vmAddress, err.Error())
 	}
 	if entry == nil {
 		return nil
@@ -75,7 +75,7 @@ func (s *SawtoothAppState) GetClientAccount(addr Word256) *Account {
 	entry, err := s.mgr.GetClientEntry(vmAddress)
 
 	if err != nil {
-		panic(err.Error())
+        logger.Warnf("Error getting account %v: %v", vmAddress, err.Error())
 	}
 	if entry == nil {
 		return nil
