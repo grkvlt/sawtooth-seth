@@ -13,42 +13,8 @@
 # limitations under the License.
 # ------------------------------------------------------------------------------
 
-# Build cli
-FROM ubuntu:xenial AS cli
-
-COPY . /project/sawtooth-seth
-
-ENV GOPATH=/project/sawtooth-seth/cli \
-    PATH=${PATH}:/project/sawtooth-seth/cli/bin:/project/sawtooth-seth/bin:/usr/lib/go-1.9/bin
-
-RUN apt-get update \
- && apt-get install -y -q \
-    git \
-    libssl-dev \
-    libzmq3-dev \
-    openssl \
-    pkg-config \
-    python3 \
-    unzip \
-    python3-pip \
- && pip3 install grpcio-tools \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-RUN go get -u \
-    github.com/golang/protobuf/proto \
-    github.com/golang/protobuf/protoc-gen-go \
-    github.com/btcsuite/btcd/btcec \
-    github.com/grkvlt/sawtooth-sdk-go/... \
-    github.com/jessevdk/go-flags \
-    github.com/pelletier/go-toml \
-    golang.org/x/crypto/ssh/terminal
-
-RUN seth-protogen go
-
-WORKDIR ${GOPATH}/src/seth_cli/cli
-ENV GOPATH=${GOPATH}:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
-RUN go build -o /project/sawtooth-seth/cli/bin/seth
+# Reference cli
+FROM sawtooth-seth-cli as cli
 
 # Build RPC
 FROM ubuntu:xenial AS rpc
@@ -102,5 +68,5 @@ RUN apt-get update \
 
 WORKDIR /
 
-COPY --from=cli /project/sawtooth-seth/cli/bin/seth /bin
+COPY --from=cli /bin/seth /bin
 COPY --from=rpc /project/sawtooth-seth/rpc/bin/seth-rpc /bin
