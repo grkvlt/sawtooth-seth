@@ -28,7 +28,6 @@ RUN \
 
 RUN apt-get update \
  && apt-get install -y -q \
-    curl \
     git \
     golang-1.9-go \
     libssl-dev \
@@ -58,16 +57,14 @@ RUN go get -u \
     github.com/golang/mock/mockgen \
     github.com/golang/protobuf/proto \
     github.com/golang/protobuf/protoc-gen-go \
-    github.com/btcsuite/btcd/btcec \
-    github.com/grkvlt/sawtooth-sdk-go/... \
     github.com/jessevdk/go-flags \
     github.com/pebbe/zmq4 \
     github.com/pelletier/go-toml \
     github.com/satori/go.uuid \
     golang.org/x/crypto/ssh/terminal
 
-RUN go get github.com/hyperledger/sawtooth-sdk-go \
- && cd $GOPATH/src/github.com/hyperledger/sawtooth-sdk-go \
+RUN go get github.com/grkvlt/sawtooth-sdk-go \
+ && cd $GOPATH/src/github.com/grkvlt/sawtooth-sdk-go \
  && go generate
 
 COPY . /project/sawtooth-seth
@@ -79,6 +76,26 @@ ENV GOPATH=${GOPATH}:/project/sawtooth-seth/burrow:/project/sawtooth-seth/common
 RUN go build -o /project/sawtooth-seth/cli/bin/seth
 
 FROM ubuntu:xenial
+
+RUN apt-get update \
+ && apt-get install -y -q \
+    software-properties-common \
+    libssl-dev \
+    libzmq3-dev \
+    curl \
+    build-essential \
+    git \
+ && add-apt-repository ppa:ethereum/ethereum \
+ && apt-get update \
+ && apt-get install -y -q \
+    solc \
+ && curl -s -S -o /tmp/setup-node.sh https://deb.nodesource.com/setup_6.x \
+ && chmod 755 /tmp/setup-node.sh \
+ && /tmp/setup-node.sh \
+ && apt-get install nodejs -y -q \
+ && rm /tmp/setup-node.sh \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
 RUN npm install \
     ethereumjs-abi \
