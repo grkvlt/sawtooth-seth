@@ -27,6 +27,7 @@ RUN apt-get update \
  && apt-get install -y -q --allow-downgrades \
     pkg-config \
     curl \
+    git \
     gcc \
     unzip \
     openssl \
@@ -44,13 +45,25 @@ RUN curl -OLsS https://github.com/google/protobuf/releases/download/v3.5.1/proto
 
 RUN curl https://sh.rustup.rs -sSf > /usr/bin/rustup-init \
  && chmod +x /usr/bin/rustup-init \
- && rustup-init -y
+ && rustup-init -y --default-toolchain 1.24.1
 
 ENV PATH=${PATH}:/root/.cargo/bin:/protoc3/bin:/project/sawtooth-seth/rpc/bin \
     CARGO_INCREMENTAL=0
 
-WORKDIR /project/sawtooth-seth/rpc
+WORKDIR /project/sawtooth-seth
+RUN cargo install --version 1.4.4 --force protobuf \
+ && seth-protogen rust
 
+WORKDIR /project
+RUN git clone https://github.com/blockchaintp/sawtooth-core \
+ && cd sawtooth-core \
+ && git fetch --all \
+ && git checkout 1-0 \
+ && ./bin/protogen rust \
+ && cd sdk/rust \
+ && cargo build
+
+WORKDIR /project/sawtooth-seth/rpc
 RUN mkdir /project/sawtooth-seth/rpc/bin \
  && cargo build \
  && cp ./target/debug/rpc /project/sawtooth-seth/rpc/bin/seth-rpc
