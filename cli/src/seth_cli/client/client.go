@@ -25,7 +25,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/golang/protobuf/proto"
-	"github.com/grkvlt/sawtooth-sdk-go/logging"
+	"github.com/blockchaintp/sawtooth-sdk-go/logging"
 	"net/http"
 	. "protobuf/seth_pb2"
 )

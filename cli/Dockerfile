@@ -63,8 +63,8 @@ RUN go get -u \
     github.com/satori/go.uuid \
     golang.org/x/crypto/ssh/terminal
 
-RUN go get github.com/grkvlt/sawtooth-sdk-go \
- && cd $GOPATH/src/github.com/grkvlt/sawtooth-sdk-go \
+RUN go get github.com/blockchaintp/sawtooth-sdk-go \
+ && cd $GOPATH/src/github.com/blockchaintp/sawtooth-sdk-go \
  && go generate
 
 COPY . /project/sawtooth-seth
