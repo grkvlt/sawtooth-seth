@@ -19,7 +19,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/grkvlt/sawtooth-sdk-go/logging"
+	"github.com/blockchaintp/sawtooth-sdk-go/logging"
 	"github.com/jessevdk/go-flags"
 	"os"
 )

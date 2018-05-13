@@ -22,7 +22,7 @@ import (
  "testing"
  c "seth_cli/client"
  "encoding/hex"
- "github.com/grkvlt/sawtooth-sdk-go/logging"
+ "github.com/blockchaintp/sawtooth-sdk-go/logging"
 )
 
 const (

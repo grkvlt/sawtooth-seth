@@ -64,8 +64,8 @@ RUN go get -u \
     golang.org/x/crypto/ripemd160 \
     gopkg.in/fatih/set.v0
 
-RUN go get github.com/grkvlt/sawtooth-sdk-go \
- && cd $GOPATH/src/github.com/grkvlt/sawtooth-sdk-go \
+RUN go get github.com/blockchaintp/sawtooth-sdk-go \
+ && cd $GOPATH/src/github.com/blockchaintp/sawtooth-sdk-go \
  && go generate
 
 RUN seth-protogen go

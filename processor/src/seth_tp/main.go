@@ -19,8 +19,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/grkvlt/sawtooth-sdk-go/logging"
-	"github.com/grkvlt/sawtooth-sdk-go/processor"
+	"github.com/blockchaintp/sawtooth-sdk-go/logging"
+	"github.com/blockchaintp/sawtooth-sdk-go/processor"
 	"github.com/jessevdk/go-flags"
 	"os"
 	seth "seth_tp/handler"
