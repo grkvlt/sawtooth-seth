@@ -25,16 +25,16 @@ ENV PATH=${PATH}:/project/sawtooth-seth/bin
 
 RUN apt-get update \
  && apt-get install -y -q --allow-downgrades \
-    pkg-config \
     curl \
-    git \
     gcc \
-    unzip \
-    openssl \
+    git \
     libssl-dev \
     libzmq3-dev \
+    openssl \
+    pkg-config \
     python3 \
     python3-pip \
+    unzip \
  && pip3 install grpcio-tools \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
@@ -58,7 +58,7 @@ WORKDIR /project
 RUN git clone https://github.com/blockchaintp/sawtooth-core \
  && cd sawtooth-core \
  && git fetch --all \
- && git checkout 1-0 \
+ && git checkout 1-0-staging-01 \
  && ./bin/protogen rust \
  && cd sdk/rust \
  && cargo build
