@@ -19,8 +19,6 @@ FROM sawtooth-seth-cli as cli
 # Build RPC
 FROM ubuntu:xenial AS rpc
 
-COPY . /project/sawtooth-seth
-
 ENV PATH=${PATH}:/project/sawtooth-seth/bin
 
 RUN apt-get update \
@@ -49,6 +47,8 @@ RUN curl https://sh.rustup.rs -sSf > /usr/bin/rustup-init \
 
 ENV PATH=${PATH}:/root/.cargo/bin:/protoc3/bin:/project/sawtooth-seth/rpc/bin \
     CARGO_INCREMENTAL=0
+
+COPY . /project/sawtooth-seth
 
 WORKDIR /project/sawtooth-seth
 RUN cargo install --version 1.4.4 --force protobuf \
